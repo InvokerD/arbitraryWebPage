@@ -1,0 +1,1714 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>HackerSpace Terminal - Security Tools</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap");
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            :root {
+                --neon-green: #00ff41;
+                --neon-cyan: #00ffff;
+                --neon-red: #ff0040;
+                --neon-yellow: #ffff00;
+                --neon-purple: #bf00ff;
+                --terminal-bg: #0a0e15;
+                --terminal-surface: #0f1419;
+                --terminal-border: #1a2332;
+                --text-primary: #00ff41;
+                --text-secondary: #00ffff;
+                --text-muted: #446688;
+            }
+
+            body {
+                font-family: "Share Tech Mono", monospace;
+                background: var(--terminal-bg);
+                color: var(--neon-green);
+                min-height: 100vh;
+                overflow-x: hidden;
+                position: relative;
+            }
+
+            /* Matrix Rain Background */
+            #matrix-canvas {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                opacity: 0.15;
+            }
+
+            /* Scanline Effect */
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    transparent 50%,
+                    rgba(0, 255, 65, 0.02) 50%
+                );
+                background-size: 100% 4px;
+                pointer-events: none;
+                z-index: 1000;
+                animation: scanline 8s linear infinite;
+            }
+
+            @keyframes scanline {
+                0% {
+                    transform: translateY(0);
+                }
+                100% {
+                    transform: translateY(4px);
+                }
+            }
+
+            /* Glitch Effect */
+            @keyframes glitch {
+                0% {
+                    text-shadow:
+                        2px 2px 0 var(--neon-cyan),
+                        -2px -2px 0 var(--neon-red);
+                }
+                25% {
+                    text-shadow:
+                        -2px 2px 0 var(--neon-red),
+                        2px -2px 0 var(--neon-cyan);
+                }
+                50% {
+                    text-shadow:
+                        2px -2px 0 var(--neon-cyan),
+                        -2px 2px 0 var(--neon-red);
+                }
+                75% {
+                    text-shadow:
+                        -2px -2px 0 var(--neon-red),
+                        2px 2px 0 var(--neon-cyan);
+                }
+                100% {
+                    text-shadow:
+                        2px 2px 0 var(--neon-cyan),
+                        -2px -2px 0 var(--neon-red);
+                }
+            }
+
+            /* Header */
+            .header {
+                background: rgba(15, 20, 25, 0.9);
+                border-bottom: 2px solid var(--neon-green);
+                padding: 1rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            }
+
+            .logo {
+                font-family: "Orbitron", monospace;
+                font-size: 1.8rem;
+                font-weight: 900;
+                color: var(--neon-green);
+                text-shadow:
+                    0 0 10px var(--neon-green),
+                    0 0 20px var(--neon-green);
+                letter-spacing: 3px;
+            }
+
+            .logo:hover {
+                animation: glitch 0.3s ease-in-out;
+            }
+
+            .nav-links {
+                display: flex;
+                gap: 2rem;
+                align-items: center;
+            }
+
+            .nav-links a {
+                color: var(--neon-cyan);
+                text-decoration: none;
+                text-transform: uppercase;
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+                transition: all 0.3s;
+                position: relative;
+            }
+
+            .nav-links a::before {
+                content: ">";
+                position: absolute;
+                left: -15px;
+                opacity: 0;
+                transition: all 0.3s;
+            }
+
+            .nav-links a:hover {
+                color: var(--neon-green);
+                text-shadow: 0 0 10px var(--neon-green);
+            }
+
+            .nav-links a:hover::before {
+                opacity: 1;
+                left: -10px;
+            }
+
+            /* Hero Terminal */
+            .hero-terminal {
+                max-width: 1400px;
+                margin: 2rem auto;
+                padding: 0 2rem;
+            }
+
+            .terminal-window {
+                background: var(--terminal-surface);
+                border: 2px solid var(--neon-green);
+                border-radius: 8px;
+                box-shadow:
+                    0 0 30px rgba(0, 255, 65, 0.3),
+                    inset 0 0 50px rgba(0, 255, 65, 0.05);
+                overflow: hidden;
+            }
+
+            .terminal-header {
+                background: rgba(0, 255, 65, 0.1);
+                padding: 0.5rem 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                border-bottom: 1px solid var(--neon-green);
+            }
+
+            .terminal-btn {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                border: 1px solid;
+            }
+
+            .btn-close {
+                background: var(--neon-red);
+                border-color: var(--neon-red);
+            }
+            .btn-minimize {
+                background: var(--neon-yellow);
+                border-color: var(--neon-yellow);
+            }
+            .btn-maximize {
+                background: var(--neon-green);
+                border-color: var(--neon-green);
+            }
+
+            .terminal-title {
+                margin-left: auto;
+                font-size: 0.85rem;
+                color: var(--text-muted);
+            }
+
+            .terminal-body {
+                padding: 1.5rem;
+                min-height: 300px;
+                font-size: 1.1rem;
+                line-height: 1.8;
+            }
+
+            .terminal-line {
+                display: flex;
+                margin-bottom: 0.5rem;
+            }
+
+            .prompt {
+                color: var(--neon-cyan);
+                margin-right: 0.5rem;
+            }
+
+            .command {
+                color: var(--neon-green);
+            }
+
+            .output {
+                color: var(--text-muted);
+                margin-left: 2rem;
+            }
+
+            .output.success {
+                color: var(--neon-green);
+            }
+
+            .output.error {
+                color: var(--neon-red);
+            }
+
+            .output.warning {
+                color: var(--neon-yellow);
+            }
+
+            .cursor {
+                display: inline-block;
+                width: 10px;
+                height: 20px;
+                background: var(--neon-green);
+                animation: blink 1s infinite;
+            }
+
+            @keyframes blink {
+                0%,
+                50% {
+                    opacity: 1;
+                }
+                51%,
+                100% {
+                    opacity: 0;
+                }
+            }
+
+            /* Interactive Terminal */
+            .interactive-terminal {
+                max-width: 1400px;
+                margin: 2rem auto;
+                padding: 0 2rem;
+            }
+
+            #terminal-input {
+                background: transparent;
+                border: none;
+                color: var(--neon-green);
+                font-family: "Share Tech Mono", monospace;
+                font-size: 1.1rem;
+                outline: none;
+                width: calc(100% - 4rem);
+                caret-color: var(--neon-green);
+            }
+
+            #terminal-output {
+                max-height: 400px;
+                overflow-y: auto;
+                margin-bottom: 1rem;
+            }
+
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: var(--terminal-bg);
+                border-left: 1px solid var(--terminal-border);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--neon-green);
+                border-radius: 5px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--neon-cyan);
+            }
+
+            /* Tools Grid */
+            .tools-grid {
+                max-width: 1400px;
+                margin: 2rem auto;
+                padding: 0 2rem;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+            }
+
+            .tool-panel {
+                background: var(--terminal-surface);
+                border: 1px solid var(--terminal-border);
+                border-radius: 8px;
+                padding: 1.5rem;
+                transition: all 0.3s;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .tool-panel::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    var(--neon-green),
+                    transparent
+                );
+                animation: scan 2s linear infinite;
+            }
+
+            @keyframes scan {
+                0% {
+                    transform: translateX(-100%);
+                }
+                100% {
+                    transform: translateX(100%);
+                }
+            }
+
+            .tool-panel:hover {
+                border-color: var(--neon-green);
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+                transform: translateY(-5px);
+            }
+
+            .tool-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--terminal-border);
+            }
+
+            .tool-icon {
+                font-size: 2rem;
+                color: var(--neon-cyan);
+                text-shadow: 0 0 10px var(--neon-cyan);
+            }
+
+            .tool-title {
+                font-family: "Orbitron", monospace;
+                font-size: 1.2rem;
+                color: var(--neon-green);
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+            .tool-body {
+                margin-top: 1rem;
+            }
+
+            /* Form Elements */
+            input[type="text"],
+            input[type="number"],
+            input[type="password"],
+            textarea,
+            select {
+                width: 100%;
+                background: rgba(0, 255, 65, 0.05);
+                border: 1px solid var(--terminal-border);
+                border-radius: 4px;
+                padding: 0.75rem;
+                color: var(--neon-green);
+                font-family: "Share Tech Mono", monospace;
+                font-size: 1rem;
+                margin: 0.5rem 0;
+                transition: all 0.3s;
+            }
+
+            input:focus,
+            textarea:focus,
+            select:focus {
+                outline: none;
+                border-color: var(--neon-green);
+                box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            }
+
+            textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            button,
+            .btn {
+                background: rgba(0, 255, 65, 0.1);
+                border: 1px solid var(--neon-green);
+                color: var(--neon-green);
+                padding: 0.75rem 1.5rem;
+                font-family: "Orbitron", monospace;
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                cursor: pointer;
+                transition: all 0.3s;
+                position: relative;
+                overflow: hidden;
+                margin: 0.5rem 0;
+            }
+
+            button::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: rgba(0, 255, 65, 0.3);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition:
+                    width 0.6s,
+                    height 0.6s;
+            }
+
+            button:hover::before {
+                width: 300px;
+                height: 300px;
+            }
+
+            button:hover {
+                background: rgba(0, 255, 65, 0.2);
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+                text-shadow: 0 0 10px var(--neon-green);
+            }
+
+            button:active {
+                transform: scale(0.95);
+            }
+
+            .btn-danger {
+                border-color: var(--neon-red);
+                color: var(--neon-red);
+            }
+
+            .btn-warning {
+                border-color: var(--neon-yellow);
+                color: var(--neon-yellow);
+            }
+
+            .btn-info {
+                border-color: var(--neon-cyan);
+                color: var(--neon-cyan);
+            }
+
+            /* Result Display */
+            .result {
+                background: rgba(0, 255, 65, 0.05);
+                border-left: 3px solid var(--neon-green);
+                padding: 1rem;
+                margin-top: 1rem;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .result.error {
+                border-left-color: var(--neon-red);
+                background: rgba(255, 0, 64, 0.05);
+            }
+
+            .result.warning {
+                border-left-color: var(--neon-yellow);
+                background: rgba(255, 255, 0, 0.05);
+            }
+
+            /* Loading Spinner */
+            .spinner {
+                border: 3px solid rgba(0, 255, 65, 0.1);
+                border-top: 3px solid var(--neon-green);
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 1rem auto;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* Stats Display */
+            .stats-grid {
+                max-width: 1400px;
+                margin: 2rem auto;
+                padding: 0 2rem;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .stat-box {
+                background: var(--terminal-surface);
+                border: 1px solid var(--terminal-border);
+                padding: 1.5rem;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .stat-box::after {
+                content: "";
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                    45deg,
+                    transparent,
+                    rgba(0, 255, 65, 0.1),
+                    transparent
+                );
+                animation: shine 3s infinite;
+            }
+
+            @keyframes shine {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .stat-value {
+                font-size: 3rem;
+                font-family: "Orbitron", monospace;
+                font-weight: 900;
+                color: var(--neon-green);
+                text-shadow: 0 0 20px var(--neon-green);
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-top: 0.5rem;
+            }
+
+            /* Code Block */
+            .code-block {
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid var(--terminal-border);
+                border-radius: 4px;
+                padding: 1rem;
+                margin-top: 1rem;
+                overflow-x: auto;
+                font-size: 0.9rem;
+            }
+
+            .code-block pre {
+                margin: 0;
+                color: var(--neon-cyan);
+            }
+
+            /* Network Scanner Animation */
+            .scan-animation {
+                width: 100%;
+                height: 200px;
+                position: relative;
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid var(--terminal-border);
+                margin: 1rem 0;
+                overflow: hidden;
+            }
+
+            .scan-line {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: var(--neon-green);
+                box-shadow: 0 0 10px var(--neon-green);
+                animation: scanVertical 2s linear infinite;
+            }
+
+            @keyframes scanVertical {
+                0% {
+                    top: 0;
+                }
+                100% {
+                    top: 100%;
+                }
+            }
+
+            /* Toast Notification */
+            .toast-container {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .toast {
+                background: var(--terminal-surface);
+                border: 1px solid var(--neon-green);
+                padding: 1rem 1.5rem;
+                min-width: 300px;
+                box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+                animation: slideIn 0.3s ease;
+            }
+
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            /* Footer */
+            .footer {
+                background: var(--terminal-surface);
+                border-top: 1px solid var(--neon-green);
+                padding: 2rem;
+                text-align: center;
+                margin-top: 4rem;
+            }
+
+            .footer-text {
+                color: var(--text-muted);
+                font-size: 0.9rem;
+            }
+
+            .footer-links {
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                margin-top: 1rem;
+            }
+
+            .footer-links a {
+                color: var(--neon-green);
+                text-decoration: none;
+                transition: all 0.3s;
+            }
+
+            .footer-links a:hover {
+                color: var(--neon-cyan);
+                text-shadow: 0 0 10px var(--neon-cyan);
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .tools-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .nav-links {
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+
+                .logo {
+                    font-size: 1.5rem;
+                }
+            }
+
+            /* ASCII Art */
+            .ascii-art {
+                color: var(--neon-green);
+                font-size: 0.6rem;
+                line-height: 1;
+                text-align: center;
+                margin: 2rem 0;
+                text-shadow: 0 0 5px var(--neon-green);
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Matrix Background -->
+        <canvas id="matrix-canvas"></canvas>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo"><i class="fas fa-terminal"></i> HACKERSPACE</div>
+            <nav class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="#tools"><i class="fas fa-tools"></i> Tools</a>
+                <a href="#terminal"><i class="fas fa-terminal"></i> Terminal</a>
+                <a href="#stats"><i class="fas fa-chart-line"></i> Stats</a>
+            </nav>
+        </header>
+
+        <!-- ASCII Art -->
+        <pre class="ascii-art">
+ _   _            _             ____
+| | | | __ _  ___| | _____ _ __/ ___| _ __   __ _  ___ ___
+| |_| |/ _` |/ __| |/ / _ \ '__\___ \| '_ \ / _` |/ __/ _ \
+|  _  | (_| | (__|   <  __/ |   ___) | |_) | (_| | (_|  __/
+|_| |_|\__,_|\___|_|\_\___|_|  |____/| .__/ \__,_|\___\___|
+                                      |_|
+        </pre>
+
+        <!-- Hero Terminal -->
+        <section class="hero-terminal">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <span class="terminal-btn btn-close"></span>
+                    <span class="terminal-btn btn-minimize"></span>
+                    <span class="terminal-btn btn-maximize"></span>
+                    <span class="terminal-title">root@hackerspace:~</span>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-line">
+                        <span class="prompt">root@hackerspace:~$</span>
+                        <span class="command">./welcome.sh</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output success">
+                            [✓] System initialized successfully
+                        </span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output">
+                            [*] Loading security modules...
+                        </span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output success">
+                            [✓] Encryption protocols activated
+                        </span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output success">
+                            [✓] Network scanner online
+                        </span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output warning">
+                            [!] Access Level: ADMINISTRATOR
+                        </span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="output">
+                            [*] Type 'help' for available commands
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Terminal -->
+        <section class="interactive-terminal" id="terminal">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <span class="terminal-btn btn-close"></span>
+                    <span class="terminal-btn btn-minimize"></span>
+                    <span class="terminal-btn btn-maximize"></span>
+                    <span class="terminal-title">Interactive Terminal</span>
+                </div>
+                <div class="terminal-body">
+                    <div id="terminal-output"></div>
+                    <div class="terminal-line">
+                        <span class="prompt">root@hackerspace:~$</span>
+                        <input
+                            type="text"
+                            id="terminal-input"
+                            autofocus
+                            autocomplete="off"
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid" id="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="stat-uptime">0</div>
+                <div class="stat-label">Uptime (Seconds)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="stat-commands">0</div>
+                <div class="stat-label">Commands Executed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">256</div>
+                <div class="stat-label">Encryption Bits</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">99.9%</div>
+                <div class="stat-label">Security Level</div>
+            </div>
+        </section>
+
+        <!-- Tools Grid -->
+        <section class="tools-grid" id="tools">
+            <!-- Hash Generator -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-hashtag tool-icon"></i>
+                    <h3 class="tool-title">Hash Generator</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="text"
+                        id="hashInput"
+                        placeholder="Enter text to hash..."
+                    />
+                    <select id="hashAlgo">
+                        <option value="md5">MD5</option>
+                        <option value="sha1">SHA-1</option>
+                        <option value="sha256">SHA-256</option>
+                        <option value="sha512">SHA-512</option>
+                    </select>
+                    <button onclick="generateHash()">
+                        <i class="fas fa-cog"></i> Generate Hash
+                    </button>
+                    <div id="hashResult"></div>
+                </div>
+            </div>
+
+            <!-- Base64 Encoder/Decoder -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-code tool-icon"></i>
+                    <h3 class="tool-title">Base64 Tool</h3>
+                </div>
+                <div class="tool-body">
+                    <textarea
+                        id="base64Input"
+                        placeholder="Enter text..."
+                    ></textarea>
+                    <button onclick="encodeBase64()">
+                        <i class="fas fa-lock"></i> Encode
+                    </button>
+                    <button onclick="decodeBase64()" class="btn-info">
+                        <i class="fas fa-unlock"></i> Decode
+                    </button>
+                    <div id="base64Result"></div>
+                </div>
+            </div>
+
+            <!-- IP Lookup -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-network-wired tool-icon"></i>
+                    <h3 class="tool-title">IP Analyzer</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="text"
+                        id="ipInput"
+                        placeholder="Enter IP address or leave empty for your IP"
+                    />
+                    <button onclick="lookupIP()">
+                        <i class="fas fa-search"></i> Analyze IP
+                    </button>
+                    <div id="ipResult"></div>
+                </div>
+            </div>
+
+            <!-- Port Scanner Simulator -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-radar tool-icon"></i>
+                    <h3 class="tool-title">Port Scanner</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="text"
+                        id="scanTarget"
+                        placeholder="Target: localhost"
+                        value="localhost"
+                    />
+                    <button onclick="simulatePortScan()">
+                        <i class="fas fa-satellite-dish"></i> Start Scan
+                    </button>
+                    <div
+                        class="scan-animation"
+                        id="scanAnimation"
+                        style="display: none"
+                    >
+                        <div class="scan-line"></div>
+                    </div>
+                    <div id="scanResult"></div>
+                </div>
+            </div>
+
+            <!-- JSON Formatter -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-brackets-curly tool-icon"></i>
+                    <h3 class="tool-title">JSON Formatter</h3>
+                </div>
+                <div class="tool-body">
+                    <textarea
+                        id="jsonInput"
+                        placeholder='{"key": "value"}'
+                        rows="4"
+                    ></textarea>
+                    <button onclick="formatJSON()">
+                        <i class="fas fa-magic"></i> Format
+                    </button>
+                    <button onclick="minifyJSON()" class="btn-warning">
+                        <i class="fas fa-compress"></i> Minify
+                    </button>
+                    <div id="jsonResult"></div>
+                </div>
+            </div>
+
+            <!-- Password Strength Analyzer -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-shield-alt tool-icon"></i>
+                    <h3 class="tool-title">Password Analyzer</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="password"
+                        id="passAnalyze"
+                        placeholder="Enter password to analyze..."
+                        oninput="analyzePassword()"
+                    />
+                    <button onclick="togglePasswordVisibility()">
+                        <i class="fas fa-eye"></i> Toggle
+                    </button>
+                    <div id="passStrength"></div>
+                </div>
+            </div>
+
+            <!-- Caesar Cipher -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-key tool-icon"></i>
+                    <h3 class="tool-title">Caesar Cipher</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="text"
+                        id="cipherInput"
+                        placeholder="Enter text to encrypt/decrypt..."
+                    />
+                    <input
+                        type="number"
+                        id="cipherShift"
+                        placeholder="Shift (1-25)"
+                        value="3"
+                        min="1"
+                        max="25"
+                    />
+                    <button onclick="encryptCaesar()">
+                        <i class="fas fa-lock"></i> Encrypt
+                    </button>
+                    <button onclick="decryptCaesar()" class="btn-info">
+                        <i class="fas fa-unlock"></i> Decrypt
+                    </button>
+                    <div id="cipherResult"></div>
+                </div>
+            </div>
+
+            <!-- Binary Converter -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-binary tool-icon"></i>
+                    <h3 class="tool-title">Binary Converter</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="text"
+                        id="binaryInput"
+                        placeholder="Enter text or binary..."
+                    />
+                    <button onclick="textToBinary()">
+                        <i class="fas fa-arrow-right"></i> To Binary
+                    </button>
+                    <button onclick="binaryToText()" class="btn-info">
+                        <i class="fas fa-arrow-left"></i> To Text
+                    </button>
+                    <div id="binaryResult"></div>
+                </div>
+            </div>
+
+            <!-- Hex Converter -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <i class="fas fa-hashtag tool-icon"></i>
+                    <h3 class="tool-title">Hex Converter</h3>
+                </div>
+                <div class="tool-body">
+                    <input
+                        type="text"
+                        id="hexInput"
+                        placeholder="Enter text or hex..."
+                    />
+                    <button onclick="textToHex()">
+                        <i class="fas fa-arrow-right"></i> To Hex
+                    </button>
+                    <button onclick="hexToText()" class="btn-info">
+                        <i class="fas fa-arrow-left"></i> To Text
+                    </button>
+                    <div id="hexResult"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">
+                [ HACKERSPACE TERMINAL v2.0.0 ] - Secure Connection Established
+            </p>
+            <p class="footer-text">WARNING: For educational purposes only</p>
+            <div class="footer-links">
+                <a href="index.html"
+                    ><i class="fas fa-home"></i> Back to Main</a
+                >
+                <a href="#"><i class="fab fa-github"></i> GitHub</a>
+                <a href="#"><i class="fas fa-bug"></i> Report Issue</a>
+            </div>
+        </footer>
+
+        <!-- JavaScript -->
+        <script>
+            // ==================== Matrix Rain Background ====================
+            const matrixCanvas = document.getElementById("matrix-canvas");
+            const matrixCtx = matrixCanvas.getContext("2d");
+
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+
+            const katakana =
+                "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン";
+            const latin = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const nums = "0123456789";
+            const alphabet = katakana + latin + nums;
+
+            const fontSize = 16;
+            const columns = matrixCanvas.width / fontSize;
+
+            const rainDrops = [];
+            for (let x = 0; x < columns; x++) {
+                rainDrops[x] = 1;
+            }
+
+            function drawMatrix() {
+                matrixCtx.fillStyle = "rgba(10, 14, 21, 0.05)";
+                matrixCtx.fillRect(
+                    0,
+                    0,
+                    matrixCanvas.width,
+                    matrixCanvas.height,
+                );
+
+                matrixCtx.fillStyle = "#00ff41";
+                matrixCtx.font = fontSize + "px monospace";
+
+                for (let i = 0; i < rainDrops.length; i++) {
+                    const text = alphabet.charAt(
+                        Math.floor(Math.random() * alphabet.length),
+                    );
+                    matrixCtx.fillText(
+                        text,
+                        i * fontSize,
+                        rainDrops[i] * fontSize,
+                    );
+
+                    if (
+                        rainDrops[i] * fontSize > matrixCanvas.height &&
+                        Math.random() > 0.975
+                    ) {
+                        rainDrops[i] = 0;
+                    }
+                    rainDrops[i]++;
+                }
+            }
+
+            setInterval(drawMatrix, 30);
+
+            window.addEventListener("resize", () => {
+                matrixCanvas.width = window.innerWidth;
+                matrixCanvas.height = window.innerHeight;
+            });
+
+            // ==================== Toast System ====================
+            function showToast(message, type = "success") {
+                const container = document.getElementById("toastContainer");
+                const toast = document.createElement("div");
+                toast.className = "toast";
+                toast.innerHTML = `<span>[${type === "error" ? "✗" : "✓"}] ${message}</span>`;
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = "slideIn 0.3s ease reverse";
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // ==================== Interactive Terminal ====================
+            const terminalOutput = document.getElementById("terminal-output");
+            const terminalInput = document.getElementById("terminal-input");
+            let commandCount = 0;
+
+            const commands = {
+                help: () => `Available commands:
+  help     - Show this help message
+  clear    - Clear terminal
+  hack     - Run simulation
+  scan     - Network scan
+  encrypt  - Encrypt data
+  status   - System status
+  whoami   - Display user info
+  date     - Show current date/time
+  echo     - Echo text back`,
+
+                clear: () => {
+                    terminalOutput.innerHTML = "";
+                    return "";
+                },
+
+                hack: () => {
+                    showToast("Initializing hack sequence...", "success");
+                    return `[*] Initiating connection...
+[✓] Connected to target
+[*] Bypassing firewall...
+[✓] Firewall bypassed
+[*] Extracting data...
+[✓] Data extraction complete
+[!] Mission accomplished!`;
+                },
+
+                scan: () => {
+                    return `[*] Scanning network...
+[✓] Found 5 devices
+  - 192.168.1.1 (Router)
+  - 192.168.1.100 (Desktop)
+  - 192.168.1.101 (Laptop)
+  - 192.168.1.102 (Phone)
+  - 192.168.1.103 (IoT Device)`;
+                },
+
+                encrypt: () => {
+                    return `[*] Encryption Protocol: AES-256
+[✓] Data encrypted successfully
+[*] Key: ${Math.random().toString(36).substring(2, 15)}`;
+                },
+
+                status: () => {
+                    return `System Status:
+  CPU: ${Math.floor(Math.random() * 30 + 10)}%
+  Memory: ${Math.floor(Math.random() * 50 + 20)}%
+  Network: ONLINE
+  Security: MAXIMUM`;
+                },
+
+                whoami: () => "root",
+
+                date: () => new Date().toString(),
+
+                echo: (args) => args.join(" "),
+            };
+
+            terminalInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    const input = terminalInput.value.trim();
+                    if (input) {
+                        const [cmd, ...args] = input.split(" ");
+
+                        const line = document.createElement("div");
+                        line.className = "terminal-line";
+                        line.innerHTML = `<span class="prompt">root@hackerspace:~$</span> <span class="command">${input}</span>`;
+                        terminalOutput.appendChild(line);
+
+                        if (commands[cmd.toLowerCase()]) {
+                            const output = commands[cmd.toLowerCase()](args);
+                            if (output) {
+                                const outputLine =
+                                    document.createElement("div");
+                                outputLine.className = "terminal-line";
+                                outputLine.innerHTML = `<span class="output success">${output.replace(/\n/g, "<br>")}</span>`;
+                                terminalOutput.appendChild(outputLine);
+                            }
+                            commandCount++;
+                            document.getElementById(
+                                "stat-commands",
+                            ).textContent = commandCount;
+                        } else {
+                            const errorLine = document.createElement("div");
+                            errorLine.className = "terminal-line";
+                            errorLine.innerHTML = `<span class="output error">Command not found: ${cmd}</span>`;
+                            terminalOutput.appendChild(errorLine);
+                        }
+
+                        terminalInput.value = "";
+                        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    }
+                }
+            });
+
+            // ==================== Stats Uptime ====================
+            let uptimeSeconds = 0;
+            setInterval(() => {
+                uptimeSeconds++;
+                document.getElementById("stat-uptime").textContent =
+                    uptimeSeconds;
+            }, 1000);
+
+            // ==================== Hash Generator ====================
+            async function generateHash() {
+                const input = document.getElementById("hashInput").value;
+                const algo = document.getElementById("hashAlgo").value;
+                const resultDiv = document.getElementById("hashResult");
+
+                if (!input) {
+                    showToast("Please enter text to hash", "error");
+                    return;
+                }
+
+                const msgBuffer = new TextEncoder().encode(input);
+                let hashBuffer;
+
+                try {
+                    if (algo === "md5") {
+                        resultDiv.innerHTML =
+                            '<div class="result warning">[!] MD5 is simulated (use server-side for real MD5)</div>';
+                        return;
+                    } else if (algo === "sha1") {
+                        hashBuffer = await crypto.subtle.digest(
+                            "SHA-1",
+                            msgBuffer,
+                        );
+                    } else if (algo === "sha256") {
+                        hashBuffer = await crypto.subtle.digest(
+                            "SHA-256",
+                            msgBuffer,
+                        );
+                    } else if (algo === "sha512") {
+                        hashBuffer = await crypto.subtle.digest(
+                            "SHA-512",
+                            msgBuffer,
+                        );
+                    }
+
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const hashHex = hashArray
+                        .map((b) => b.toString(16).padStart(2, "0"))
+                        .join("");
+
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] ${algo.toUpperCase()} Hash:</strong><br>
+                        <div class="code-block"><pre>${hashHex}</pre></div>
+                    </div>`;
+                    showToast("Hash generated successfully", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Hash generation failed</div>';
+                    showToast("Hash generation failed", "error");
+                }
+            }
+
+            // ==================== Base64 Tool ====================
+            function encodeBase64() {
+                const input = document.getElementById("base64Input").value;
+                const resultDiv = document.getElementById("base64Result");
+
+                if (!input) {
+                    showToast("Please enter text to encode", "error");
+                    return;
+                }
+
+                try {
+                    const encoded = btoa(input);
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] Encoded:</strong><br>
+                        <div class="code-block"><pre>${encoded}</pre></div>
+                    </div>`;
+                    showToast("Text encoded successfully", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Encoding failed</div>';
+                    showToast("Encoding failed", "error");
+                }
+            }
+
+            function decodeBase64() {
+                const input = document.getElementById("base64Input").value;
+                const resultDiv = document.getElementById("base64Result");
+
+                if (!input) {
+                    showToast("Please enter Base64 to decode", "error");
+                    return;
+                }
+
+                try {
+                    const decoded = atob(input);
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] Decoded:</strong><br>
+                        <div class="code-block"><pre>${decoded}</pre></div>
+                    </div>`;
+                    showToast("Text decoded successfully", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Invalid Base64 string</div>';
+                    showToast("Decoding failed", "error");
+                }
+            }
+
+            // ==================== IP Lookup ====================
+            async function lookupIP() {
+                const ipInput = document.getElementById("ipInput").value;
+                const resultDiv = document.getElementById("ipResult");
+
+                resultDiv.innerHTML = '<div class="spinner"></div>';
+
+                try {
+                    const url = ipInput
+                        ? `https://ipapi.co/${ipInput}/json/`
+                        : "https://ipapi.co/json/";
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.reason || "Invalid IP address");
+                    }
+
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] IP Analysis Complete:</strong><br>
+                        IP: ${data.ip}<br>
+                        Location: ${data.city}, ${data.region}, ${data.country_name}<br>
+                        ISP: ${data.org}<br>
+                        Timezone: ${data.timezone}<br>
+                        Coordinates: ${data.latitude}, ${data.longitude}
+                    </div>`;
+                    showToast("IP lookup successful", "success");
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="result error">[✗] ${error.message}</div>`;
+                    showToast("IP lookup failed", "error");
+                }
+            }
+
+            // ==================== Port Scanner Simulator ====================
+            function simulatePortScan() {
+                const target = document.getElementById("scanTarget").value;
+                const scanAnimation = document.getElementById("scanAnimation");
+                const resultDiv = document.getElementById("scanResult");
+
+                scanAnimation.style.display = "block";
+                resultDiv.innerHTML =
+                    '<div class="result">[*] Scanning ports...</div>';
+
+                showToast("Port scan initiated", "success");
+
+                const commonPorts = [
+                    21, 22, 23, 25, 53, 80, 110, 143, 443, 3306, 3389, 8080,
+                ];
+                const openPorts = commonPorts.filter(() => Math.random() > 0.7);
+
+                setTimeout(() => {
+                    scanAnimation.style.display = "none";
+                    let output = `<div class="result success">
+                        <strong>[✓] Scan Complete for ${target}:</strong><br>
+                        <div class="code-block"><pre>`;
+
+                    commonPorts.forEach((port) => {
+                        const status = openPorts.includes(port)
+                            ? "OPEN"
+                            : "CLOSED";
+                        const color = status === "OPEN" ? "#00ff41" : "#446688";
+                        output += `Port ${port}: <span style="color: ${color}">${status}</span>\n`;
+                    });
+
+                    output += `</pre></div></div>`;
+                    resultDiv.innerHTML = output;
+                    showToast("Scan completed", "success");
+                }, 3000);
+            }
+
+            // ==================== JSON Formatter ====================
+            function formatJSON() {
+                const input = document.getElementById("jsonInput").value;
+                const resultDiv = document.getElementById("jsonResult");
+
+                if (!input) {
+                    showToast("Please enter JSON to format", "error");
+                    return;
+                }
+
+                try {
+                    const parsed = JSON.parse(input);
+                    const formatted = JSON.stringify(parsed, null, 2);
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] Formatted JSON:</strong><br>
+                        <div class="code-block"><pre>${formatted}</pre></div>
+                    </div>`;
+                    showToast("JSON formatted successfully", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Invalid JSON</div>';
+                    showToast("Invalid JSON", "error");
+                }
+            }
+
+            function minifyJSON() {
+                const input = document.getElementById("jsonInput").value;
+                const resultDiv = document.getElementById("jsonResult");
+
+                if (!input) {
+                    showToast("Please enter JSON to minify", "error");
+                    return;
+                }
+
+                try {
+                    const parsed = JSON.parse(input);
+                    const minified = JSON.stringify(parsed);
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] Minified JSON:</strong><br>
+                        <div class="code-block"><pre>${minified}</pre></div>
+                    </div>`;
+                    showToast("JSON minified successfully", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Invalid JSON</div>';
+                    showToast("Invalid JSON", "error");
+                }
+            }
+
+            // ==================== Password Analyzer ====================
+            function analyzePassword() {
+                const password = document.getElementById("passAnalyze").value;
+                const resultDiv = document.getElementById("passStrength");
+
+                if (!password) {
+                    resultDiv.innerHTML = "";
+                    return;
+                }
+
+                let strength = 0;
+                let feedback = [];
+
+                if (password.length >= 8) strength++;
+                if (password.length >= 12) strength++;
+                if (/[a-z]/.test(password)) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+                const levels = [
+                    "Very Weak",
+                    "Weak",
+                    "Fair",
+                    "Good",
+                    "Strong",
+                    "Very Strong",
+                ];
+                const colors = [
+                    "#ff0040",
+                    "#ff6600",
+                    "#ffff00",
+                    "#00ffff",
+                    "#00ff41",
+                    "#00ff41",
+                ];
+
+                resultDiv.innerHTML = `<div class="result" style="border-left-color: ${colors[strength]}">
+                    <strong>Strength: <span style="color: ${colors[strength]}">${levels[strength]}</span></strong><br>
+                    Length: ${password.length} characters<br>
+                    Score: ${strength}/6<br>
+                    ${password.length < 8 ? "[!] Use at least 8 characters<br>" : ""}
+                    ${!/[a-z]/.test(password) ? "[!] Add lowercase letters<br>" : ""}
+                    ${!/[A-Z]/.test(password) ? "[!] Add uppercase letters<br>" : ""}
+                    ${!/[0-9]/.test(password) ? "[!] Add numbers<br>" : ""}
+                    ${!/[^a-zA-Z0-9]/.test(password) ? "[!] Add special characters<br>" : ""}
+                </div>`;
+            }
+
+            function togglePasswordVisibility() {
+                const input = document.getElementById("passAnalyze");
+                input.type = input.type === "password" ? "text" : "password";
+            }
+
+            // ==================== Caesar Cipher ====================
+            function encryptCaesar() {
+                const input = document.getElementById("cipherInput").value;
+                const shift =
+                    parseInt(document.getElementById("cipherShift").value) || 3;
+                const resultDiv = document.getElementById("cipherResult");
+
+                if (!input) {
+                    showToast("Please enter text to encrypt", "error");
+                    return;
+                }
+
+                const encrypted = input.replace(/[a-zA-Z]/g, (char) => {
+                    const start = char <= "Z" ? 65 : 97;
+                    return String.fromCharCode(
+                        ((char.charCodeAt(0) - start + shift) % 26) + start,
+                    );
+                });
+
+                resultDiv.innerHTML = `<div class="result success">
+                    <strong>[✓] Encrypted (Shift ${shift}):</strong><br>
+                    <div class="code-block"><pre>${encrypted}</pre></div>
+                </div>`;
+                showToast("Text encrypted", "success");
+            }
+
+            function decryptCaesar() {
+                const input = document.getElementById("cipherInput").value;
+                const shift =
+                    parseInt(document.getElementById("cipherShift").value) || 3;
+                const resultDiv = document.getElementById("cipherResult");
+
+                if (!input) {
+                    showToast("Please enter text to decrypt", "error");
+                    return;
+                }
+
+                const decrypted = input.replace(/[a-zA-Z]/g, (char) => {
+                    const start = char <= "Z" ? 65 : 97;
+                    return String.fromCharCode(
+                        ((char.charCodeAt(0) - start - shift + 26) % 26) +
+                            start,
+                    );
+                });
+
+                resultDiv.innerHTML = `<div class="result success">
+                    <strong>[✓] Decrypted (Shift ${shift}):</strong><br>
+                    <div class="code-block"><pre>${decrypted}</pre></div>
+                </div>`;
+                showToast("Text decrypted", "success");
+            }
+
+            // ==================== Binary Converter ====================
+            function textToBinary() {
+                const input = document.getElementById("binaryInput").value;
+                const resultDiv = document.getElementById("binaryResult");
+
+                if (!input) {
+                    showToast("Please enter text", "error");
+                    return;
+                }
+
+                const binary = input
+                    .split("")
+                    .map((char) =>
+                        char.charCodeAt(0).toString(2).padStart(8, "0"),
+                    )
+                    .join(" ");
+
+                resultDiv.innerHTML = `<div class="result success">
+                    <strong>[✓] Binary:</strong><br>
+                    <div class="code-block"><pre>${binary}</pre></div>
+                </div>`;
+                showToast("Converted to binary", "success");
+            }
+
+            function binaryToText() {
+                const input = document.getElementById("binaryInput").value;
+                const resultDiv = document.getElementById("binaryResult");
+
+                if (!input) {
+                    showToast("Please enter binary", "error");
+                    return;
+                }
+
+                try {
+                    const text = input
+                        .split(" ")
+                        .map((bin) => String.fromCharCode(parseInt(bin, 2)))
+                        .join("");
+
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] Text:</strong><br>
+                        <div class="code-block"><pre>${text}</pre></div>
+                    </div>`;
+                    showToast("Converted to text", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Invalid binary</div>';
+                    showToast("Invalid binary format", "error");
+                }
+            }
+
+            // ==================== Hex Converter ====================
+            function textToHex() {
+                const input = document.getElementById("hexInput").value;
+                const resultDiv = document.getElementById("hexResult");
+
+                if (!input) {
+                    showToast("Please enter text", "error");
+                    return;
+                }
+
+                const hex = input
+                    .split("")
+                    .map((char) =>
+                        char.charCodeAt(0).toString(16).padStart(2, "0"),
+                    )
+                    .join(" ");
+
+                resultDiv.innerHTML = `<div class="result success">
+                    <strong>[✓] Hexadecimal:</strong><br>
+                    <div class="code-block"><pre>${hex}</pre></div>
+                </div>`;
+                showToast("Converted to hex", "success");
+            }
+
+            function hexToText() {
+                const input = document.getElementById("hexInput").value;
+                const resultDiv = document.getElementById("hexResult");
+
+                if (!input) {
+                    showToast("Please enter hex", "error");
+                    return;
+                }
+
+                try {
+                    const text = input
+                        .split(" ")
+                        .map((hex) => String.fromCharCode(parseInt(hex, 16)))
+                        .join("");
+
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>[✓] Text:</strong><br>
+                        <div class="code-block"><pre>${text}</pre></div>
+                    </div>`;
+                    showToast("Converted to text", "success");
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="result error">[✗] Invalid hex</div>';
+                    showToast("Invalid hex format", "error");
+                }
+            }
+
+            // ==================== Initialize ====================
+            console.log(
+                "%c[✓] HACKERSPACE TERMINAL LOADED",
+                "color: #00ff41; font-size: 20px; font-weight: bold;",
+            );
+            console.log(
+                "%c[*] System initialized successfully",
+                "color: #00ffff;",
+            );
+            showToast("System initialized", "success");
+
+            // Auto-type welcome message
+            setTimeout(() => {
+                showToast('Type "help" in terminal for commands', "success");
+            }, 2000);
+        </script>
+    </body>
+</html>
