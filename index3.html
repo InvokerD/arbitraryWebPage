@@ -790,21 +790,304 @@
             }
 
             /* Responsive */
+            @media (max-width: 1024px) {
+                .tools-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1.5rem;
+                }
+
+                .hero h1 {
+                    font-size: 2.5rem;
+                }
+
+                .hero p {
+                    font-size: 1rem;
+                }
+            }
+
             @media (max-width: 768px) {
+                body {
+                    padding-bottom: 2rem;
+                }
+
                 .tools-grid {
                     grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                    padding: 0 0.5rem;
+                }
+
+                nav {
+                    padding: 0.75rem 0;
                 }
 
                 nav ul {
                     display: none;
                 }
 
+                .logo {
+                    font-size: 1.25rem;
+                }
+
+                .theme-toggle {
+                    padding: 0.5rem;
+                    font-size: 1.1rem;
+                }
+
                 .hero {
-                    padding: 4rem 1rem 2rem;
+                    padding: 3rem 1rem 2rem;
+                }
+
+                .hero h1 {
+                    font-size: 2rem;
+                    line-height: 1.2;
+                }
+
+                .hero p {
+                    font-size: 0.95rem;
+                }
+
+                .section-title {
+                    font-size: 1.75rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .tool-card {
+                    padding: 1.25rem;
+                }
+
+                .tool-icon {
+                    font-size: 2rem;
+                }
+
+                .tool-card h3 {
+                    font-size: 1.1rem;
+                }
+
+                input,
+                textarea,
+                select {
+                    font-size: 0.9rem;
+                    padding: 0.75rem;
+                    min-height: 44px;
+                }
+
+                button,
+                .btn {
+                    padding: 0.875rem 1.5rem;
+                    font-size: 0.9rem;
+                    min-height: 44px;
                 }
 
                 .timer-display {
-                    font-size: 2.5rem;
+                    font-size: 2.25rem;
+                    padding: 1.5rem;
+                }
+
+                .calculator input {
+                    font-size: 1.25rem;
+                    padding: 0.75rem;
+                }
+
+                .calc-btn {
+                    padding: 1rem;
+                    font-size: 1.1rem;
+                }
+
+                #drawing-canvas {
+                    max-width: 100%;
+                    height: 300px;
+                }
+
+                .canvas-controls {
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                }
+
+                .canvas-controls button {
+                    flex: 1 1 45%;
+                }
+
+                .stats-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1rem;
+                }
+
+                .stat-number {
+                    font-size: 1.75rem;
+                }
+
+                .stat-label {
+                    font-size: 0.8rem;
+                }
+
+                .weather-display {
+                    padding: 1.25rem;
+                }
+
+                .temperature {
+                    font-size: 2rem;
+                }
+
+                .todo-item {
+                    padding: 0.75rem;
+                }
+
+                footer {
+                    padding: 1.5rem 1rem;
+                }
+
+                .social-links a {
+                    font-size: 1.1rem;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .hero h1 {
+                    font-size: 1.75rem;
+                }
+
+                .hero p {
+                    font-size: 0.9rem;
+                }
+
+                .section-title {
+                    font-size: 1.5rem;
+                }
+
+                .tool-card {
+                    padding: 1rem;
+                }
+
+                .tool-icon {
+                    font-size: 1.75rem;
+                }
+
+                .tool-card h3 {
+                    font-size: 1rem;
+                }
+
+                input,
+                textarea,
+                select {
+                    font-size: 0.85rem;
+                    padding: 0.65rem;
+                }
+
+                button,
+                .btn {
+                    padding: 0.75rem 1.25rem;
+                    font-size: 0.85rem;
+                }
+
+                .timer-display {
+                    font-size: 2rem;
+                    padding: 1.25rem;
+                }
+
+                .timer-controls button {
+                    padding: 0.75rem 1rem;
+                    font-size: 0.85rem;
+                }
+
+                .calculator input {
+                    font-size: 1.1rem;
+                    padding: 0.65rem;
+                }
+
+                .calc-btn {
+                    padding: 0.875rem;
+                    font-size: 1rem;
+                }
+
+                #drawing-canvas {
+                    height: 250px;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .stat-number {
+                    font-size: 1.5rem;
+                }
+
+                .weather-display {
+                    padding: 1rem;
+                }
+
+                .temperature {
+                    font-size: 1.75rem;
+                }
+
+                .logo {
+                    font-size: 1.1rem;
+                }
+
+                .theme-toggle {
+                    padding: 0.4rem;
+                    font-size: 1rem;
+                }
+            }
+
+            /* Touch device optimizations */
+            @media (hover: none) and (pointer: coarse) {
+                button,
+                .btn,
+                a,
+                input,
+                select,
+                textarea {
+                    -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+                }
+
+                button:active,
+                .btn:active {
+                    transform: scale(0.98);
+                }
+
+                .tool-card:hover {
+                    transform: none;
+                }
+
+                .tool-card:active {
+                    transform: scale(0.98);
+                }
+
+                .tab:active {
+                    transform: scale(0.95);
+                }
+
+                .calc-btn:active {
+                    transform: scale(0.95);
+                }
+
+                /* Improve touch targets */
+                button,
+                .btn,
+                a,
+                .calc-btn,
+                .tab {
+                    min-height: 44px;
+                    min-width: 44px;
+                }
+            }
+
+            /* Landscape mode on mobile */
+            @media (max-width: 768px) and (orientation: landscape) {
+                .hero {
+                    padding: 2rem 1rem;
+                }
+
+                .hero h1 {
+                    font-size: 1.75rem;
+                }
+
+                .timer-display {
+                    font-size: 2rem;
+                }
+
+                #drawing-canvas {
+                    height: 200px;
                 }
             }
 
