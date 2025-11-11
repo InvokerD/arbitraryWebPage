@@ -22,8 +22,9 @@
                 justify-content: center;
                 align-items: center;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                overflow: hidden;
+                overflow-x: hidden;
                 position: relative;
+                padding: 1rem 0;
             }
 
             /* Animated background particles */
@@ -77,6 +78,7 @@
                 margin-bottom: 1rem;
                 text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
                 animation: fadeInDown 1s ease;
+                line-height: 1.2;
             }
 
             .subtitle {
@@ -84,6 +86,7 @@
                 color: rgba(255, 255, 255, 0.9);
                 margin-bottom: 3rem;
                 animation: fadeInUp 1s ease 0.2s both;
+                line-height: 1.5;
             }
 
             .cards-container {
@@ -93,6 +96,7 @@
                 flex-wrap: wrap;
                 max-width: 1200px;
                 padding: 0 1rem;
+                margin: 0 auto;
             }
 
             .portal-card {
@@ -108,6 +112,7 @@
                 position: relative;
                 overflow: hidden;
                 animation: fadeInUp 1s ease both;
+                max-width: 100%;
             }
 
             .portal-card:nth-child(1) {
@@ -180,12 +185,14 @@
                 list-style: none;
                 text-align: left;
                 margin-bottom: 2rem;
+                padding: 0 0.5rem;
             }
 
             .portal-features li {
                 color: #555;
                 padding: 0.5rem 0;
                 font-size: 0.95rem;
+                text-align: left;
             }
 
             .portal-features li::before {
@@ -210,6 +217,8 @@
                 cursor: pointer;
                 transition: all 0.3s ease;
                 box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                width: 100%;
+                min-height: 44px; /* Touch target size */
             }
 
             .hackerspace .enter-button {
@@ -251,6 +260,8 @@
             @media (max-width: 768px) {
                 body {
                     padding: 1rem 0;
+                    align-items: flex-start;
+                    padding-top: 2rem;
                 }
 
                 .container {
@@ -276,6 +287,7 @@
                     width: 100%;
                     max-width: 100%;
                     padding: 2rem 1.5rem;
+                    min-height: auto;
                 }
 
                 .portal-icon {
@@ -334,6 +346,32 @@
 
                 .portal-features {
                     margin-bottom: 1.5rem;
+                }
+                
+                .portal-features li {
+                    padding: 0.4rem 0;
+                    font-size: 0.85rem;
+                }
+            }
+
+            /* Touch device optimizations */
+            @media (hover: none) and (pointer: coarse) {
+                .portal-card:hover {
+                    transform: none;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                }
+                
+                .portal-card:active {
+                    transform: translateY(-10px) scale(1.02);
+                    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+                }
+                
+                .enter-button:active {
+                    transform: scale(0.98);
+                }
+                
+                .portal-card::before {
+                    display: none;
                 }
             }
 
